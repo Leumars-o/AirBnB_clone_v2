@@ -114,7 +114,7 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, args):
-        """ 
+        """
         Create an object of any class
         Usage: create <class name><key 1>=<value 1> <key 2>=<value 2> ...")
 
@@ -122,12 +122,12 @@ class HBNBCommand(cmd.Cmd):
         try:
             if not args:
                 raise SyntaxError("** Class name missing **")
-            
+
             split_args = args.split(' ')
             class_name = split_args[0]
             params = split_args[1:]
             new_instance = eval('{}()'.format(class_name))
-            
+
             for param in params:
                 key, value = param.split('=')
                 try:
@@ -337,7 +337,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
-    
+
     @classmethod
     def attribute_check(cls, attribute):
         """This method checks and verifies the attribute is valid
@@ -357,6 +357,7 @@ class HBNBCommand(cmd.Cmd):
                     return float(attribute)
             except ValueError:
                 return None
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
