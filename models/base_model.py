@@ -10,7 +10,7 @@ Base = declarative_base()
 
 class BaseModel:
     """A base class for all hbnb models"""
-    id = Column(String(60), primary_key=True)
+    id = Column(String(60), primary_key=True, nullable=False)
     created_at = Column(datetime.utcnow(), nullable=False)
     updated_at = Column(datetime.utcnow(), nullable=False)
 
@@ -22,13 +22,21 @@ class BaseModel:
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
         else:
-            kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
+            if 'updated_at' in kwargs:
+                kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
                                                      '%Y-%m-%dT%H:%M:%S.%f')
-            kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
+            else:
+                self.updated_at = datetime.now()
+            if 'created_at' not in kwargs:
+                self.created_at = datetime.now()
+            else:
+                kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
                                                      '%Y-%m-%dT%H:%M:%S.%f')
-            del kwargs['__class__']
-            self.__dict__.update(kwargs)
-
+            if 'id' not in kwargs:
+                self.id = str(uuid.uuid4())
+            else:
+                self.__dict__.update(kwargs)
+        
     def __str__(self):
         """Returns a string representation of the instance"""
         cls = (str(type(self)).split('.')[-1]).split('\'')[0]
@@ -47,6 +55,13 @@ class BaseModel:
         dictionary.update(self.__dict__)
         dictionary.update({'__class__':
                           (str(type(self)).split('.')[-1]).split('\'')[0]})
+        if '_sa_instance_state' in dictionary:
+            del dictionary['_sa_instance_state']
         dictionary['created_at'] = self.created_at.isoformat()
         dictionary['updated_at'] = self.updated_at.isoformat()
         return dictionary
+    
+    def delete(self):
+        """Deletes the current instance from storage"""
+        from models import storage
+        storage.delete(self)
